@@ -6,84 +6,21 @@ import { getSession } from "next-auth/react";
 import { TextArea } from "@/components/textArea";
 import { FiShare2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
-import { db } from "../../services/firebaseConection";
-import {
-  addDoc,
-  collection,
-  query,
-  orderBy,
-  where,
-  onSnapshot,
-} from "firebase/firestore";
+import { useDashboard } from "./hooks/useDashboard";
 
 interface IProps {
   user: { email: string };
 }
 
-interface ITaskProps {
-  id: string;
-  task: string;
-  created: Date;
-  user: { email: string };
-  publicTask: boolean;
-}
-
 export default function Dashboard({ user }: IProps) {
-  const [input, setInput] = useState<string>("");
-  const [publicTask, setPublicTask] = useState(false);
-  const [tasks, setTasks] = useState<ITaskProps[]>([]);
-
-  function handleChangePublicTask(event: ChangeEvent<HTMLInputElement>) {
-    setPublicTask(event.target.checked);
-  }
-
-  async function handleSubmitTask(event: FormEvent) {
-    event.preventDefault();
-
-    if (input == "") return;
-
-    try {
-      await addDoc(collection(db, "tarefas"), {
-        task: input,
-        created: new Date(),
-        user: user?.email,
-        publicTask: publicTask,
-      });
-      setInput("");
-      setPublicTask(false);
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
-  useEffect(() => {
-    if (!user.email) return;
-    async function loadTasks() {
-      const taskRef = collection(db, "tarefas");
-      const q = query(
-        taskRef,
-        orderBy("created", "desc"),
-        where("user", "==", user?.email)
-      );
-      onSnapshot(q, (snapshot) => {
-        let list = [] as ITaskProps[];
-
-        snapshot.forEach((doc) => {
-          list.push({
-            id: doc.id,
-            task: doc.data().task,
-            created: doc.data().created,
-            user: doc.data().user,
-            publicTask: doc.data().publicTask,
-          });
-        });
-
-        setTasks(list);
-      });
-    }
-
-    loadTasks();
-  }, [user?.email]);
+  const {
+    input,
+    setInput,
+    publicTask,
+    tasks,
+    handleSubmitTask,
+    handleChangePublicTask,
+  } = useDashboard(user.email);
 
   return (
     <div className={styles.container}>
