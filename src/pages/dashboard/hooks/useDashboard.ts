@@ -14,16 +14,27 @@ import {
   where,
   onSnapshot,
   Timestamp,
+  doc,
+  deleteDoc,
 } from "firebase/firestore";
 import { ITaskProps } from "./types";
 
-export function useDashboard(userEmail: string | null) {
+export function useDashboard(userEmail?: string | null) {
   const [input, setInput] = useState("");
   const [publicTask, setPublicTask] = useState(false);
   const [tasks, setTasks] = useState<ITaskProps[]>([]);
 
   const handleChangePublicTask = (event: ChangeEvent<HTMLInputElement>) => {
     setPublicTask(event.target.checked);
+  };
+
+  const handleShare = async (id: string) => {
+    await navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_URL}/${id}`);
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    const docRef = doc(db, "tarefas", id);
+    await deleteDoc(docRef);
   };
 
   const handleSubmitTask = async (event: FormEvent) => {
@@ -73,10 +84,12 @@ export function useDashboard(userEmail: string | null) {
 
   return {
     input,
-    setInput,
     publicTask,
     tasks,
+    setInput,
+    handleDeleteTask,
     handleSubmitTask,
     handleChangePublicTask,
+    handleShare,
   };
 }

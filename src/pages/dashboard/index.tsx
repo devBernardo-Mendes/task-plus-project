@@ -7,6 +7,7 @@ import { TextArea } from "@/components/textArea";
 import { FiShare2 } from "react-icons/fi";
 import { FaTrash } from "react-icons/fa";
 import { useDashboard } from "./hooks/useDashboard";
+import Link from "next/link";
 
 interface IProps {
   user: { email: string };
@@ -15,9 +16,11 @@ interface IProps {
 export default function Dashboard({ user }: IProps) {
   const {
     input,
-    setInput,
-    publicTask,
     tasks,
+    publicTask,
+    setInput,
+    handleShare,
+    handleDeleteTask,
     handleSubmitTask,
     handleChangePublicTask,
   } = useDashboard(user.email);
@@ -31,7 +34,7 @@ export default function Dashboard({ user }: IProps) {
       <main className={styles.main}>
         <section className={styles.content}>
           <div className={styles.contentForm}>
-            <h1 className={styles.title}></h1>
+            <h1 className={styles.title}>Qual sua Tarefa?</h1>
             <form onSubmit={handleSubmitTask}>
               <TextArea
                 placeholder="Digite qual sua tarefa"
@@ -62,14 +65,26 @@ export default function Dashboard({ user }: IProps) {
               {item.publicTask && (
                 <div className={styles.tagContainer}>
                   <label className={styles.tag}>PúblicO</label>
-                  <button className={styles.shareButton}>
+                  <button
+                    className={styles.shareButton}
+                    onClick={() => handleShare(item.id)}
+                  >
                     <FiShare2 size={22} color="#3183ff" />
                   </button>
                 </div>
               )}
               <div className={styles.taskContent}>
-                <p>{item.task}</p>
-                <button className={styles.trashButton}>
+                {item.publicTask ? (
+                  <Link href={`/task/${item.id}`} className={styles.link}>
+                    <p>{item.task}</p>
+                  </Link>
+                ) : (
+                  <p>{item.task}</p>
+                )}
+                <button
+                  className={styles.trashButton}
+                  onClick={() => handleDeleteTask(item.id)}
+                >
                   <FaTrash size={24} color="#ea3140" />
                 </button>
               </div>

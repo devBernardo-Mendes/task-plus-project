@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./styles.module.css";
 import { useSession, signIn, signOut } from "next-auth/react";
+
 export function Header() {
   const { data: session, status } = useSession();
   return (
@@ -13,7 +14,7 @@ export function Header() {
             </h1>
           </Link>
           {session?.user && (
-            <Link href="dashboard" className={styles.link}>
+            <Link href="/dashboard" className={styles.link}>
               Meu Painel
             </Link>
           )}
